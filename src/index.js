@@ -862,7 +862,7 @@ import { isRemote } from 'pouchdb-utils';
             });
         },
         // tear down the liveFeed objects
-        beforeDestroy() {
+        beforeUnmount() {
             Object.keys(this._liveFeeds).map(lfKey => {
                 this._liveFeeds[lfKey].cancel();
             });
