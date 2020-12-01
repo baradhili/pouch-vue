@@ -7,7 +7,9 @@ import { isRemote } from 'pouchdb-utils';
         defaultUsername = null,
         defaultPassword = null,
         databases = {},
-        optionsDB = {};
+        optionsDB = {},
+        emits = false // TODO configurable
+        ;
 
     let vuePouch = {
         /* Creates a property in 'data' with 'null' value for each pouch property
@@ -39,6 +41,20 @@ import { isRemote } from 'pouchdb-utils';
             }
 
             let vm = this;
+
+            let emitEvent = (evname, ev) => {
+                if (emits) {
+                    vm.$emits(evname, ev)
+                } else {
+                    let cbs = ['on:'+evname, 'on:any-pouchdb']
+                    for (let i in cbs) {
+                        let cb = cbs[i]
+                        if (cb in vm) {
+                            vm[cb](evname, ev);
+                        }
+                    }
+                }
+            }
 
             vm._liveFeeds = {};
 
@@ -124,13 +140,13 @@ import { isRemote } from 'pouchdb-utils';
 
             function registerListeners(db) {
                 db.on('created', name => {
-                    vm.$emit('pouchdb-db-created', {
+                    emitEvent('pouchdb-db-created', {
                         db: name,
                         ok: true,
                     });
                 });
                 db.on('destroyed', name => {
-                    vm.$emit('pouchdb-db-destroyed', {
+                    emitEvent('pouchdb-db-destroyed', {
                         db: name,
                         ok: true,
                     });
@@ -357,7 +373,7 @@ import { isRemote } from 'pouchdb-utils';
                         .sync(databases[localDB], databases[remoteDB], _options)
                         .on('paused', err => {
                             if (err) {
-                                vm.$emit('pouchdb-sync-error', {
+                                emitEvent('pouchdb-sync-error', {
                                     db: localDB,
                                     error: err,
                                 });
@@ -365,38 +381,38 @@ import { isRemote } from 'pouchdb-utils';
                             }
                             else {
 
-                                vm.$emit('pouchdb-sync-paused', {
+                                emitEvent('pouchdb-sync-paused', {
                                     db: localDB,
                                     paused: true,
                                 });
                             }
                         })
                         .on('change', info => {
-                            vm.$emit('pouchdb-sync-change', {
+                            emitEvent('pouchdb-sync-change', {
                                 db: localDB,
                                 info: info,
                             });
                         })
                         .on('active', () => {
-                            vm.$emit('pouchdb-sync-active', {
+                            emitEvent('pouchdb-sync-active', {
                                 db: localDB,
                                 active: true,
                             });
                         })
                         .on('denied', err => {
-                            vm.$emit('pouchdb-sync-denied', {
+                            emitEvent('pouchdb-sync-denied', {
                                 db: localDB,
                                 error: err,
                             });
                         })
                         .on('complete', info => {
-                            vm.$emit('pouchdb-sync-complete', {
+                            emitEvent('pouchdb-sync-complete', {
                                 db: localDB,
                                 info: info,
                             });
                         })
                         .on('error', err => {
-                            vm.$emit('pouchdb-sync-error', {
+                            emitEvent('pouchdb-sync-error', {
                                 db: localDB,
                                 error: err,
                             });
@@ -434,45 +450,45 @@ import { isRemote } from 'pouchdb-utils';
                         .to(databases[remoteDB], options)
                         .on('paused', err => {
                             if (err) {
-                                vm.$emit('pouchdb-push-error', {
+                                emitEvent('pouchdb-push-error', {
                                     db: localDB,
                                     error: err,
                                 });
                                 return;
                             }
                             else {
-                                vm.$emit('pouchdb-push-paused', {
+                                emitEvent('pouchdb-push-paused', {
                                     db: localDB,
                                     paused: true,
                                 });
                             }
                         })
                         .on('change', info => {
-                            vm.$emit('pouchdb-push-change', {
+                            emitEvent('pouchdb-push-change', {
                                 db: localDB,
                                 info: info,
                             });
                         })
                         .on('active', () => {
-                            vm.$emit('pouchdb-push-active', {
+                            emitEvent('pouchdb-push-active', {
                                 db: localDB,
                                 active: true,
                             });
                         })
                         .on('denied', err => {
-                            vm.$emit('pouchdb-push-denied', {
+                            emitEvent('pouchdb-push-denied', {
                                 db: localDB,
                                 error: err,
                             });
                         })
                         .on('complete', info => {
-                            vm.$emit('pouchdb-push-complete', {
+                            emitEvent('pouchdb-push-complete', {
                                 db: localDB,
                                 info: info,
                             });
                         })
                         .on('error', err => {
-                            vm.$emit('pouchdb-push-error', {
+                            emitEvent('pouchdb-push-error', {
                                 db: localDB,
                                 error: err,
                             });
@@ -511,45 +527,45 @@ import { isRemote } from 'pouchdb-utils';
                         .from(databases[remoteDB], options)
                         .on('paused', err => {
                             if (err) {
-                                vm.$emit('pouchdb-pull-error', {
+                                emitEvent('pouchdb-pull-error', {
                                     db: localDB,
                                     error: err,
                                 });
                                 return;
                             }
                             else {
-                                vm.$emit('pouchdb-pull-paused', {
+                                emitEvent('pouchdb-pull-paused', {
                                     db: localDB,
                                     paused: true,
                                 });
                             }
                         })
                         .on('change', info => {
-                            vm.$emit('pouchdb-pull-change', {
+                            emitEvent('pouchdb-pull-change', {
                                 db: localDB,
                                 info: info,
                             });
                         })
                         .on('active', () => {
-                            vm.$emit('pouchdb-pull-active', {
+                            emitEvent('pouchdb-pull-active', {
                                 db: localDB,
                                 active: true,
                             });
                         })
                         .on('denied', err => {
-                            vm.$emit('pouchdb-pull-denied', {
+                            emitEvent('pouchdb-pull-denied', {
                                 db: localDB,
                                 error: err,
                             });
                         })
                         .on('complete', info => {
-                            vm.$emit('pouchdb-pull-complete', {
+                            emitEvent('pouchdb-pull-complete', {
                                 db: localDB,
                                 info: info,
                             });
                         })
                         .on('error', err => {
-                            vm.$emit('pouchdb-pull-error', {
+                            emitEvent('pouchdb-pull-error', {
                                 db: localDB,
                                 error: err,
                             });
@@ -581,19 +597,19 @@ import { isRemote } from 'pouchdb-utils';
                     let changes = databases[db]
                         .changes(_options)
                         .on('change', info => {
-                            vm.$emit('pouchdb-changes-change', {
+                            emitEvent('pouchdb-changes-change', {
                                 db: db,
                                 info: info,
                             });
                         })
                         .on('complete', info => {
-                            vm.$emit('pouchdb-changes-complete', {
+                            emitEvent('pouchdb-changes-complete', {
                                 db: db,
                                 info: info,
                             });
                         })
                         .on('error', err => {
-                            vm.$emit('pouchdb-changes-error', {
+                            emitEvent('pouchdb-changes-error', {
                                 db: db,
                                 error: err,
                             });
@@ -765,7 +781,7 @@ import { isRemote } from 'pouchdb-utils';
                         // if the selector is now giving a value of null or undefined, then return
                         // the previous liveFeed object will remain
                         if (!config) {
-                            vm.$emit('pouchdb-livefeed-error', {
+                            emitEvent('pouchdb-livefeed-error', {
                                 db: key,
                                 config: config,
                                 error: 'Null or undefined selector',
@@ -801,7 +817,7 @@ import { isRemote } from 'pouchdb-utils';
                             db = databases[databaseParam];
                         }
                         if (!db) {
-                            vm.$emit('pouchdb-livefeed-error', {
+                            emitEvent('pouchdb-livefeed-error', {
                                 db: key,
                                 error: 'Null or undefined database',
                             });
@@ -827,7 +843,7 @@ import { isRemote } from 'pouchdb-utils';
 
                                 vm.$data[key] = aggregateCache = aggregate;
 
-                                vm.$emit('pouchdb-livefeed-update', {
+                                emitEvent('pouchdb-livefeed-update', {
                                     db: key,
                                     name: db.name,
                                 });
@@ -836,19 +852,19 @@ import { isRemote } from 'pouchdb-utils';
                             .on('ready', () => {
                                 vm.$data[key] = aggregateCache;
 
-                                vm.$emit('pouchdb-livefeed-ready', {
+                                emitEvent('pouchdb-livefeed-ready', {
                                     db: key,
                                     name: db.name,
                                 });
                             })
                             .on('cancelled', function() {
-                                vm.$emit('pouchdb-livefeed-cancel', {
+                                emitEvent('pouchdb-livefeed-cancel', {
                                     db: key,
                                     name: db.name,
                                 });
                             })
                             .on('error', function(err) {
-                                vm.$emit('pouchdb-livefeed-error', {
+                                emitEvent('pouchdb-livefeed-error', {
                                     db: key,
                                     name: db.name,
                                     error: err,
