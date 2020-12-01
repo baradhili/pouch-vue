@@ -870,8 +870,8 @@ import { isRemote } from 'pouchdb-utils';
     };
 
     let api = {
-        install: (Vue, options = {}) => {
-            vue = Vue;
+        install: (app, options = {}) => {
+            vue = app;
 
             ({ pouch = PouchDB, defaultDB = '', optionsDB = {} } = options);
 
@@ -880,7 +880,7 @@ import { isRemote } from 'pouchdb-utils';
             // PouchDB.plugin(pouchdbDebug);
             if (options.debug === '*') pouch.debug.enable('*');
 
-            Vue.mixin(vuePouch);
+            app.mixin(vuePouch);
         },
     };
 
