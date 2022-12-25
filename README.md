@@ -1,6 +1,6 @@
 # Pouch Vue
 
-## Seeking help for this Plugins
+## Seeking help for this Plugin
 
 ##### Basic structure copied from https://github.com/buhrmi/vue-pouch with a lot of api changes though. TypeScript support included too.
 
