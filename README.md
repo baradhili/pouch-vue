@@ -1,6 +1,6 @@
 # Pouch Vue
 
-## This Plugin is now under active development again thanks to @assemblethis
+## Seeking help for this Plugins
 
 ##### Basic structure copied from https://github.com/buhrmi/vue-pouch with a lot of api changes though. TypeScript support included too.
 
